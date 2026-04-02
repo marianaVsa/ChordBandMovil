@@ -1,11 +1,9 @@
-package com.example.chorband.ui.screens
+package com.example.chorband.ui.screens.visitante
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,8 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chorband.viewmodel.visitante.VisitanteViewModel
 
 data class CancionVisitante(
     val nombre: String,
@@ -33,25 +34,19 @@ data class CancionVisitante(
 fun VisitanteScreen(
     onVerCancionClick: (CancionVisitante) -> Unit = {},
     onIniciarSesionClick: () -> Unit = {},
-    onCrearCuentaClick: () -> Unit = {}
+    onCrearCuentaClick: () -> Unit = {},
+    viewModel: VisitanteViewModel = viewModel()
 ) {
-    var busqueda by remember { mutableStateOf("") }
-    var paginaActual by remember { mutableStateOf(1) }
-    val totalPaginas = 3
+    val uiState by viewModel.uiState.collectAsState()
+    val cancionesFiltradas = viewModel.cancionesFiltradas()
 
-    val canciones = listOf(
-        CancionVisitante("Las Mañanitas", "Banda del norte", "12", "G Sol Mayor"),
-        CancionVisitante("Entre Dos Tierras", "Héroes del Silencio", "12", "C Do mayor"),
-        CancionVisitante("De Música Ligera", "Soda Stereo", "12", "C Do mayor"),
-        CancionVisitante("Entre Dos Tierras", "Héroes del Silencio", "12", "C Do mayor"),
-        CancionVisitante("Las Mañanitas", "Entre Dos Tierras", "12", "C Do mayor"),
-    )
-
-    val cancionesFiltradas = if (busqueda.isBlank()) canciones
-    else canciones.filter {
-        it.nombre.contains(busqueda, ignoreCase = true) ||
-                it.banda.contains(busqueda, ignoreCase = true)
-    }
+    // Paginación: 5 canciones por página
+    val porPagina = 5
+    val totalPaginas = maxOf(1, Math.ceil(cancionesFiltradas.size.toDouble() / porPagina).toInt())
+    val paginaActual = uiState.paginaActual.coerceIn(1, totalPaginas)
+    val cancionesPagina = cancionesFiltradas
+        .drop((paginaActual - 1) * porPagina)
+        .take(porPagina)
 
     Scaffold(
         topBar = {
@@ -73,8 +68,8 @@ fun VisitanteScreen(
                 },
                 actions = {
                     OutlinedTextField(
-                        value = busqueda,
-                        onValueChange = { busqueda = it },
+                        value = uiState.busqueda,
+                        onValueChange = { viewModel.onBusquedaChange(it) },
                         placeholder = {
                             Text("Buscar", color = Color.Gray, fontSize = 12.sp)
                         },
@@ -107,7 +102,6 @@ fun VisitanteScreen(
             )
         },
         bottomBar = {
-            // Footer con Iniciar sesión y Crear cuenta
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,11 +111,7 @@ fun VisitanteScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(onClick = onIniciarSesionClick) {
-                    Text(
-                        text = "Iniciar sesión",
-                        color = Color.White,
-                        fontSize = 13.sp
-                    )
+                    Text("Iniciar sesión", color = Color.White, fontSize = 13.sp)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -133,7 +123,7 @@ fun VisitanteScreen(
                     ),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
                 ) {
-                    Text(text = "Crear cuenta", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("Crear cuenta", fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
             }
         },
@@ -156,7 +146,6 @@ fun VisitanteScreen(
                     // Encabezado de tabla
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .background(Color(0xFFe0e0e0))
                             .padding(vertical = 8.dp)
                     ) {
@@ -169,13 +158,41 @@ fun VisitanteScreen(
 
                     HorizontalDivider(color = Color.LightGray, thickness = 0.5.dp)
 
-                    // Filas
-                    cancionesFiltradas.forEach { cancion ->
-                        TablaFila(
-                            cancion = cancion,
-                            onVerClick = { onVerCancionClick(cancion) }
-                        )
-                        HorizontalDivider(color = Color(0xFFe0e0e0), thickness = 0.5.dp)
+                    // Estado vacío o filas
+                    if (cancionesPagina.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .width(480.dp)
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No hay canciones públicas disponibles",
+                                color = Color.Gray,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        cancionesPagina.forEach { cancion ->
+                            TablaFila(
+                                nombre = cancion.nombre,
+                                banda = cancion.banda,
+                                bpm = cancion.bpm,
+                                tono = cancion.tono,
+                                onVerClick = {
+                                    onVerCancionClick(
+                                        CancionVisitante(
+                                            cancion.nombre,
+                                            cancion.banda,
+                                            cancion.bpm,
+                                            cancion.tono
+                                        )
+                                    )
+                                }
+                            )
+                            HorizontalDivider(color = Color(0xFFe0e0e0), thickness = 0.5.dp)
+                        }
                     }
                 }
             }
@@ -188,13 +205,19 @@ fun VisitanteScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Botón Anterior
                 TextButton(
-                    onClick = { if (paginaActual > 1) paginaActual-- },
+                    onClick = { viewModel.paginaAnterior() },
                     enabled = paginaActual > 1
                 ) {
-                    Text("<< Anterior", fontSize = 12.sp, color = if (paginaActual > 1) Color.Black else Color.Gray)
+                    Text(
+                        "<< Anterior",
+                        fontSize = 12.sp,
+                        color = if (paginaActual > 1) Color.Black else Color.Gray
+                    )
                 }
 
+                // Números de página
                 for (i in 1..totalPaginas) {
                     Box(
                         modifier = Modifier
@@ -207,7 +230,7 @@ fun VisitanteScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         TextButton(
-                            onClick = { paginaActual = i },
+                            onClick = { viewModel.onPaginaChange(i) },
                             contentPadding = PaddingValues(0.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
@@ -221,11 +244,16 @@ fun VisitanteScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                 }
 
+                // Botón Siguiente
                 TextButton(
-                    onClick = { if (paginaActual < totalPaginas) paginaActual++ },
+                    onClick = { viewModel.paginaSiguiente() },
                     enabled = paginaActual < totalPaginas
                 ) {
-                    Text("Siguiente >>", fontSize = 12.sp, color = if (paginaActual < totalPaginas) Color.Black else Color.Gray)
+                    Text(
+                        "Siguiente >>",
+                        fontSize = 12.sp,
+                        color = if (paginaActual < totalPaginas) Color.Black else Color.Gray
+                    )
                 }
             }
         }
@@ -233,7 +261,7 @@ fun VisitanteScreen(
 }
 
 @Composable
-fun TablaEncabezado(texto: String, ancho: androidx.compose.ui.unit.Dp) {
+fun TablaEncabezado(texto: String, ancho: Dp) {
     Text(
         text = texto,
         modifier = Modifier
@@ -248,7 +276,10 @@ fun TablaEncabezado(texto: String, ancho: androidx.compose.ui.unit.Dp) {
 
 @Composable
 fun TablaFila(
-    cancion: CancionVisitante,
+    nombre: String,
+    banda: String,
+    bpm: String,
+    tono: String,
     onVerClick: () -> Unit
 ) {
     Row(
@@ -258,28 +289,28 @@ fun TablaFila(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = cancion.nombre,
+            text = nombre,
             modifier = Modifier.width(110.dp).padding(horizontal = 6.dp),
             fontSize = 11.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
-            text = cancion.banda,
+            text = banda,
             modifier = Modifier.width(110.dp).padding(horizontal = 6.dp),
             fontSize = 11.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
-            text = cancion.bpm,
+            text = bpm,
             modifier = Modifier.width(80.dp).padding(horizontal = 6.dp),
             fontSize = 11.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Text(
-            text = cancion.tono,
+            text = tono,
             modifier = Modifier.width(90.dp).padding(horizontal = 6.dp),
             fontSize = 11.sp,
             color = Color.Black,
@@ -295,7 +326,7 @@ fun TablaFila(
                 ),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
             ) {
-                Text(text = "Ver", fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                Text("Ver canción", fontSize = 10.sp, fontWeight = FontWeight.Medium)
             }
         }
     }

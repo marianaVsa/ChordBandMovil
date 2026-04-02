@@ -1,4 +1,4 @@
-package com.example.chorband.ui.screens
+package com.example.chorband.ui.screens.visitante
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.chorband.viewmodel.VisitanteVerCancionViewModel
+import com.example.chorband.viewmodel.visitante.VisitanteVerCancionViewModel
 
 data class SeccionCancion(
     val titulo: String,

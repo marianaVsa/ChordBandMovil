@@ -1,4 +1,4 @@
-package com.example.chorband.viewmodel
+package com.example.chorband.viewmodel.visitante
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

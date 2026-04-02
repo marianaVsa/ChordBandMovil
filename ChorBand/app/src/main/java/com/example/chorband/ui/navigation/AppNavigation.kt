@@ -1,13 +1,12 @@
 package com.example.chorband.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.chorband.ui.screens.LoginScreen
-import com.example.chorband.ui.screens.VisitanteScreen
-import com.example.chorband.ui.screens.VisitanteVerCancionScreen
+import com.example.chorband.ui.screens.inicio.LoginScreen
+import com.example.chorband.ui.screens.visitante.VisitanteScreen
+import com.example.chorband.ui.screens.visitante.VisitanteVerCancionScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -27,8 +26,7 @@ fun AppNavigation(navController: NavHostController) {
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginClick = { email, password ->
-                    // Aquí podrías validar si quieres
+                onLoginSuccess = {
                     navController.navigate(Screen.Visitante.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
