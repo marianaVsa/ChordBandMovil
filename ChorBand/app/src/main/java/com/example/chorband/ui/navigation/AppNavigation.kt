@@ -4,18 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.chorband.ui.screens.inicio.LoginScreen
-import com.example.chorband.ui.screens.visitante.VisitanteScreen
-import com.example.chorband.ui.screens.visitante.VisitanteVerCancionScreen
+import com.example.chorband.ui.screens.*
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
-    object Visitante : Screen("visitante")
-    object VisitanteVerCancion : Screen("visitante_ver_cancion")
-    // Se irán agregando las demás pantallas:
-    // object CancionesBanda : Screen("canciones_banda")
-    // object CancionDetalle : Screen("cancion_detalle")
-    // object Perfil : Screen("perfil")
+    object RestablecerContrasena : Screen("restablecer_contrasena")
+    object Perfil : Screen("perfil")
+    object CancionesPublicas : Screen("canciones_publicas")
+    object CancionesBanda : Screen("canciones_banda")
+    object VerCancion : Screen("ver_cancion")
 }
 
 @Composable
@@ -24,41 +21,74 @@ fun AppNavigation(navController: NavHostController) {
         navController = navController,
         startDestination = Screen.Login.route
     ) {
+
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Screen.Visitante.route) {
+                    navController.navigate(Screen.CancionesBanda.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
+                },
+                onOlvidasteContrasenaClick = {
+                    navController.navigate(Screen.RestablecerContrasena.route)
                 }
             )
         }
 
-        composable(Screen.Visitante.route) {
-            VisitanteScreen(
-                onIniciarSesionClick = {
+        composable(Screen.RestablecerContrasena.route) {
+            RestablecerContrasenaScreen(
+                onCancelarClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Perfil.route) {
+            PerfilScreen(
+                onCancionesBandaClick = {
+                    navController.navigate(Screen.CancionesBanda.route)
+                },
+                onCancionesClick = {
+                    navController.navigate(Screen.CancionesPublicas.route)
+                },
+                onSalirClick = {
                     navController.navigate(Screen.Login.route)
-                },
-                onCrearCuentaClick = {
-                    // TODO: navegar a pantalla de registro
-                },
-                onVerCancionClick = { _ ->
-                    navController.navigate(Screen.VisitanteVerCancion.route)
                 }
             )
         }
 
-        composable(Screen.VisitanteVerCancion.route) {
-            VisitanteVerCancionScreen(
-                onIniciarSesionClick = {
+        composable(Screen.CancionesPublicas.route) {
+            CancionespublicasScreen(
+                viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.example.chorband.viewmodel.CancionesPublicasViewModel>(),
+                onCancionClick = {
+                    navController.navigate(Screen.VerCancion.route)
+                },
+                onPerfilClick = {
+                    navController.navigate(Screen.Perfil.route)
+                },
+                onSalirClick = {
                     navController.navigate(Screen.Login.route)
-                },
-                onCrearCuentaClick = {
-                    // TODO: navegar a pantalla de registro
                 }
             )
         }
 
-        // Se irán agregando las demás rutas aquí
+        composable(Screen.CancionesBanda.route) {
+            CancionesBandaScreen(
+                onCancionClick = { id ->
+                    navController.navigate(Screen.VerCancion.route)
+                },
+                onCancionesClick = {
+                    navController.navigate(Screen.CancionesPublicas.route)
+                },
+                onPerfilClick = {
+                    navController.navigate(Screen.Perfil.route)
+                },
+                onSalirClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
+        }
+
+        composable(Screen.VerCancion.route) {
+            // Pantalla pendiente
+        }
     }
 }

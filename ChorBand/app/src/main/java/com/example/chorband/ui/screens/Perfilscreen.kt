@@ -1,4 +1,4 @@
-package com.example.chorband.ui.screens.visitante
+package com.example.chorband.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,13 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.chorband.viewmodel.lider.PerfilViewModel
+import com.example.chorband.viewmodel.PerfilViewModel
 
 @Composable
 fun PerfilScreen(
     onCancionesBandaClick: () -> Unit = {},
     onCancionesClick: () -> Unit = {},
-    onBandaClick: () -> Unit = {},
     onSalirClick: () -> Unit = {},
     viewModel: PerfilViewModel = viewModel()
 ) {
@@ -35,14 +33,45 @@ fun PerfilScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                selectedTab = 2,
-                onCancionesBandaClick = onCancionesBandaClick,
-                onBandaClick = onBandaClick,
-                onCancionesClick = onCancionesClick,
-                onPerfilClick = {},
-                onSalirClick = onSalirClick
-            )
+            NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
+                NavigationBarItem(
+                    selected = false, onClick = onCancionesBandaClick,
+                    icon = { Icon(Icons.Default.List, null, modifier = Modifier.size(20.dp)) },
+                    label = { Text("Canciones banda", fontSize = 9.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = false, onClick = onCancionesClick,
+                    icon = { Icon(Icons.Default.Home, null, modifier = Modifier.size(20.dp)) },
+                    label = { Text("Canciones", fontSize = 9.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = true, onClick = {},
+                    icon = { Icon(Icons.Default.Person, null, modifier = Modifier.size(20.dp)) },
+                    label = { Text("Perfil", fontSize = 9.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.Black, selectedTextColor = Color.Black,
+                        unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+                NavigationBarItem(
+                    selected = false, onClick = onSalirClick,
+                    icon = { Icon(Icons.Default.ExitToApp, null, modifier = Modifier.size(20.dp)) },
+                    label = { Text("Salir", fontSize = 9.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+            }
         },
         containerColor = Color.Black
     ) { innerPadding ->
@@ -55,7 +84,6 @@ fun PerfilScreen(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = size.width
                 val h = size.height
-
                 val rosaLeft = w * 0.70f
                 val rosaRight = w * 0.86f
                 val lineaW = w * 0.018f
@@ -88,6 +116,7 @@ fun PerfilScreen(
                 }
                 drawPath(pathNegro, color = Color.Black)
 
+
                 // 5. TRIÁNGULO VERDE — esquina superior izquierda
                 val pathTriSup = Path().apply {
                     moveTo(0f, 0f)
@@ -107,7 +136,7 @@ fun PerfilScreen(
                 }
                 drawPath(pathLinSup, color = Color.White)
 
-                // 7. TRIÁNGULO VERDE — esquina inferior DERECHA
+                // 7. TRIÁNGULO VERDE — esquina inferior derecha
                 val pathTriInf = Path().apply {
                     moveTo(w, h)
                     lineTo(w * 0.85f, h)
@@ -127,7 +156,7 @@ fun PerfilScreen(
                 drawPath(pathLinInf, color = Color.White)
             }
 
-            // CLAVE DE SOL — en la franja rosa
+            // ICONO
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -140,7 +169,7 @@ fun PerfilScreen(
                 )
             }
 
-            // DATOS DEL MÚSICO — izquierda centro
+            // DATOS DEL MÚSICO
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.62f)
@@ -169,77 +198,6 @@ fun PerfilScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun BottomNavBar(
-    selectedTab: Int,
-    onCancionesBandaClick: () -> Unit,
-    onBandaClick: () -> Unit,
-    onCancionesClick: () -> Unit,
-    onPerfilClick: () -> Unit,
-    onSalirClick: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 0.dp
-    ) {
-        NavigationBarItem(
-            selected = selectedTab == 0,
-            onClick = onCancionesBandaClick,
-            icon = { Icon(Icons.Default.List, contentDescription = "Canciones banda", modifier = Modifier.size(20.dp)) },
-            label = { Text("Canciones banda", fontSize = 9.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black, selectedTextColor = Color.Black,
-                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            selected = selectedTab == 4,
-            onClick = onBandaClick,
-            icon = { Icon(Icons.Default.MusicNote, contentDescription = "Banda", modifier = Modifier.size(20.dp)) },
-            label = { Text("Banda", fontSize = 9.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black, selectedTextColor = Color.Black,
-                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            selected = selectedTab == 1,
-            onClick = onCancionesClick,
-            icon = { Icon(Icons.Default.Home, contentDescription = "Canciones", modifier = Modifier.size(20.dp)) },
-            label = { Text("Canciones", fontSize = 9.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black, selectedTextColor = Color.Black,
-                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            selected = selectedTab == 2,
-            onClick = onPerfilClick,
-            icon = { Icon(Icons.Default.Person, contentDescription = "Perfil", modifier = Modifier.size(20.dp)) },
-            label = { Text("Perfil", fontSize = 9.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black, selectedTextColor = Color.Black,
-                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            selected = selectedTab == 3,
-            onClick = onSalirClick,
-            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Salir", modifier = Modifier.size(20.dp)) },
-            label = { Text("Salir", fontSize = 9.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black, selectedTextColor = Color.Black,
-                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
     }
 }
 

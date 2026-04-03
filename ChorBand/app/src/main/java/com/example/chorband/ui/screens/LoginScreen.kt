@@ -1,4 +1,4 @@
-package com.example.chorband.ui.screens.inicio
+package com.example.chorband.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,32 +13,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chorband.R
-import com.example.chorband.viewmodel.inicio.ReestablecerContrasenaViewModel
+import com.example.chorband.viewmodel.LoginViewModel
 
 @Composable
-fun ReestablecerContrasenaScreen(
-    onEnviarSuccess: () -> Unit = {},
-    onCancelarClick: () -> Unit = {},
-    viewModel: ReestablecerContrasenaViewModel = viewModel()
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    onOlvidasteContrasenaClick: () -> Unit = {},
+    loginViewModel: LoginViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by loginViewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.envioSuccess) {
-        if (uiState.envioSuccess) {
-            onEnviarSuccess()
-            viewModel.resetEnvioSuccess()
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { uiState.loginSuccess }
+            .collect { success ->
+                if (success) {
+                    onLoginSuccess()
+                    loginViewModel.resetLoginSuccess()
+                }
+            }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,11 +50,10 @@ fun ReestablecerContrasenaScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         // Logo circular
         Box(
             modifier = Modifier
-                .size(110.dp)
+                .size(120.dp)
                 .clip(CircleShape)
                 .background(Color.Black),
             contentAlignment = Alignment.Center
@@ -59,37 +61,28 @@ fun ReestablecerContrasenaScreen(
             Image(
                 painter = painterResource(id = R.drawable.ic_logo_chordband),
                 contentDescription = "ChordBand Logo",
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(85.dp)
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Título
         Text(
-            text = "Reestablecer\ncontraseña",
+            text = "Inicio de sesión",
             fontSize = 24.sp,
             fontWeight = FontWeight.Normal,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Campo correo
         OutlinedTextField(
-            value = uiState.correo,
-            onValueChange = { viewModel.onCorreoChange(it) },
-            placeholder = {
-                Text(
-                    text = "Ingrese Correo Electronico",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
+            value = uiState.email,
+            onValueChange = { loginViewModel.onEmailChange(it) },
+            placeholder = { Text("Ingrese Correo Electronico", color = Color.Gray, fontSize = 14.sp) },
+            modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -102,63 +95,61 @@ fun ReestablecerContrasenaScreen(
             )
         )
 
-        // Mensaje de error
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Campo contraseña
+        OutlinedTextField(
+            value = uiState.password,
+            onValueChange = { loginViewModel.onPasswordChange(it) },
+            placeholder = { Text("Ingrese Contraseña", color = Color.Gray, fontSize = 14.sp) },
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.LightGray,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
+        )
+
         if (uiState.errorMessage != null) {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = uiState.errorMessage!!,
-                color = Color.Red,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center
-            )
+            Text(text = uiState.errorMessage!!, color = Color.Red, fontSize = 12.sp)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón Enviar
+        // Botón Iniciar Sesion
         Button(
-            onClick = { viewModel.onEnviarClick() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(25.dp),
+            onClick = { loginViewModel.onLoginClick() },
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            shape = RoundedCornerShape(8.dp),
             enabled = !uiState.isLoading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2ecc9a),
+                containerColor = Color.Black,
                 contentColor = Color.White
             )
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
             } else {
-                Text(
-                    text = "Enviar",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic
-                )
+                Text("Iniciar Sesion", fontSize = 16.sp, fontWeight = FontWeight.Medium)
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Botón Cancelar
-        Button(
-            onClick = onCancelarClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFe74c3c),
-                contentColor = Color.White
-            )
-        ) {
+        // ¿Olvidaste la contraseña?
+        TextButton(onClick = onOlvidasteContrasenaClick) {
             Text(
-                text = "Cancelar",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Italic
+                text = "¿Olvidaste la contraseña?",
+                color = Color(0xFF2196F3),
+                fontSize = 13.sp,
+                textDecoration = TextDecoration.None
             )
         }
     }
@@ -166,6 +157,6 @@ fun ReestablecerContrasenaScreen(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ReestablecerContrasenaScreenPreview() {
-    ReestablecerContrasenaScreen()
+fun LoginScreenPreview() {
+    LoginScreen()
 }

@@ -1,20 +1,20 @@
-package com.example.chorband.viewmodel.inicio
+package com.example.chorband.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-data class ReestablecerContrasenaUiState(
+data class RestablecerContrasenaUiState(
     val correo: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val envioSuccess: Boolean = false
 )
 
-class ReestablecerContrasenaViewModel : ViewModel() {
+class RestablecerContrasenaViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ReestablecerContrasenaUiState())
-    val uiState: StateFlow<ReestablecerContrasenaUiState> = _uiState
+    private val _uiState = MutableStateFlow(RestablecerContrasenaUiState())
+    val uiState: StateFlow<RestablecerContrasenaUiState> = _uiState
 
     fun onCorreoChange(value: String) {
         _uiState.value = _uiState.value.copy(correo = value)

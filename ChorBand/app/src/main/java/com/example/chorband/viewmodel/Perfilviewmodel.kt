@@ -1,4 +1,4 @@
-package com.example.chorband.viewmodel.lider
+package com.example.chorband.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +17,16 @@ class PerfilViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilUiState())
     val uiState: StateFlow<PerfilUiState> = _uiState
 
+    fun cargarPerfil(nombreCompleto: String, correo: String, telefono: String) {
+        _uiState.value = _uiState.value.copy(
+            nombreCompleto = nombreCompleto,
+            correo = correo,
+            telefono = telefono
+        )
+    }
+
     // TODO: cargar datos del perfil desde el backend
-    fun cargarPerfil() {
+    fun cargarPerfilDesdeBackend(usuarioId: Int) {
         _uiState.value = _uiState.value.copy(isLoading = true)
         // Aquí se hará la llamada al API
         _uiState.value = _uiState.value.copy(isLoading = false)
