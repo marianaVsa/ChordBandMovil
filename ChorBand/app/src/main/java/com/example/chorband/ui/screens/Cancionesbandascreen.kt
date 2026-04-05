@@ -47,12 +47,7 @@ fun CancionesBandaScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "ChordBand",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Text("ChordBand", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
             )
@@ -64,7 +59,7 @@ fun CancionesBandaScreen(
                     icon = { Icon(Icons.Default.List, null, modifier = Modifier.size(20.dp)) },
                     label = { Text("Canciones banda", fontSize = 9.sp) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Gray, selectedTextColor = Color.Gray,
+                        selectedIconColor = Color.Black, selectedTextColor = Color.Black,
                         unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
                         indicatorColor = Color.Transparent
                     )
@@ -74,7 +69,7 @@ fun CancionesBandaScreen(
                     icon = { Icon(Icons.Default.Home, null, modifier = Modifier.size(20.dp)) },
                     label = { Text("Canciones", fontSize = 9.sp) },
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = Color.Black, unselectedTextColor = Color.Black,
+                        unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
                         indicatorColor = Color.Transparent
                     )
                 )
@@ -109,7 +104,6 @@ fun CancionesBandaScreen(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Buscador
             OutlinedTextField(
                 value = uiState.busqueda,
                 onValueChange = { viewModel.onBusquedaChange(it) },
@@ -133,7 +127,6 @@ fun CancionesBandaScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Lista de canciones
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -154,30 +147,12 @@ fun CancionesBandaScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = cancion.nombre,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black
-                                )
-                                Text(
-                                    text = cancion.banda,
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
-                                )
+                                Text(cancion.nombre, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                Text(cancion.banda, fontSize = 12.sp, color = Color.Gray)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "${cancion.bpm}    ${cancion.tono}",
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
-                                )
+                                Text("${cancion.bpm}    ${cancion.tono}", fontSize = 12.sp, color = Color.Gray)
                             }
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            Icon(Icons.Default.ChevronRight, null, tint = Color.Gray, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
@@ -185,11 +160,8 @@ fun CancionesBandaScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Paginación
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -215,11 +187,7 @@ fun CancionesBandaScreen(
                             containerColor = if (paginaActual == i) Color.Black else Color.Transparent
                         )
                     ) {
-                        Text(
-                            text = "$i",
-                            fontSize = 13.sp,
-                            color = if (paginaActual == i) Color.White else Color.Black
-                        )
+                        Text("$i", fontSize = 13.sp, color = if (paginaActual == i) Color.White else Color.Black)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 }

@@ -38,7 +38,7 @@ class LoginViewModel : ViewModel() {
 
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-        if (email == "admin@utez.edu.mx" && password == "1234") {
+        if (email == "admin@gmail.com" && password == "1234") {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
                 loginSuccess = true

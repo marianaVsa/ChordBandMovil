@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-data class CancionPublicasItem(
+data class CancionPublicaItem(
     val id: Int,
     val nombre: String,
     val banda: String,
@@ -13,9 +13,11 @@ data class CancionPublicasItem(
 )
 
 data class CancionesPublicasUiState(
-    val canciones: List<CancionPublicasItem> = emptyList(),
+    val canciones: List<CancionPublicaItem> = emptyList(),
     val busqueda: String = "",
-    val paginaActual: Int = 1
+    val paginaActual: Int = 1,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class CancionesPublicasViewModel : ViewModel() {
@@ -24,36 +26,48 @@ class CancionesPublicasViewModel : ViewModel() {
     val uiState: StateFlow<CancionesPublicasUiState> = _uiState
 
     init {
+        cargarCanciones()
+    }
+
+    private fun cargarCanciones() {
+        // TODO: conectar con el backend
         _uiState.value = _uiState.value.copy(
-            canciones = List(15) {
-                CancionPublicasItem(it, "Canción $it", "Banda $it", "120", "C")
-            }
+            canciones = listOf(
+                CancionPublicaItem(1, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(2, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(3, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(4, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(5, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(6, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+                CancionPublicaItem(7, "Las Mañanitas", "Banda del norte", "120", "G Sol Mayor"),
+            )
         )
     }
 
-    fun onBusquedaChange(q: String) {
-        _uiState.value = _uiState.value.copy(busqueda = q, paginaActual = 1)
+    fun onBusquedaChange(query: String) {
+        _uiState.value = _uiState.value.copy(busqueda = query, paginaActual = 1)
     }
 
-    fun onPaginaChange(p: Int) {
-        _uiState.value = _uiState.value.copy(paginaActual = p)
+    fun onPaginaChange(pagina: Int) {
+        _uiState.value = _uiState.value.copy(paginaActual = pagina)
     }
 
     fun paginaAnterior() {
-        val p = _uiState.value.paginaActual
-        if (p > 1) _uiState.value = _uiState.value.copy(paginaActual = p - 1)
+        val actual = _uiState.value.paginaActual
+        if (actual > 1) _uiState.value = _uiState.value.copy(paginaActual = actual - 1)
     }
 
-    fun paginaSiguiente(total: Int) {
-        val p = _uiState.value.paginaActual
-        if (p < total) _uiState.value = _uiState.value.copy(paginaActual = p + 1)
+    fun paginaSiguiente(totalPaginas: Int) {
+        val actual = _uiState.value.paginaActual
+        if (actual < totalPaginas) _uiState.value = _uiState.value.copy(paginaActual = actual + 1)
     }
 
-    fun cancionesFiltradas(): List<CancionPublicasItem> {
-        val q = _uiState.value.busqueda
-        return if (q.isBlank()) _uiState.value.canciones
+    fun cancionesFiltradas(): List<CancionPublicaItem> {
+        val query = _uiState.value.busqueda
+        return if (query.isBlank()) _uiState.value.canciones
         else _uiState.value.canciones.filter {
-            it.nombre.contains(q, true) || it.banda.contains(q, true)
+            it.nombre.contains(query, ignoreCase = true) ||
+                    it.banda.contains(query, ignoreCase = true)
         }
     }
 }
